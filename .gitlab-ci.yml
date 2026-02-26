@@ -1,0 +1,42 @@
+image: node:20-alpine
+
+stages:
+  - lint
+  - test
+  - build
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+variables:
+  NODE_ENV: test
+  DATABASE_USE: postgres
+  DATABASE_URL: postgresql://user:pass@localhost:5432/testdb
+  JWT_SECRET: ci-test-secret-key-at-least-16-chars
+  JWT_REFRESH_SECRET: ci-test-refresh-secret-at-least-16
+
+before_script:
+  - npm ci
+  - npx prisma generate
+
+lint:
+  stage: lint
+  script:
+    - npm run lint
+    - npx tsc --noEmit
+
+test:
+  stage: test
+  script:
+    - npm test
+
+build:
+  stage: build
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 day

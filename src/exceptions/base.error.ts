@@ -1,0 +1,21 @@
+import { HttpStatus } from '@/constants/http';
+
+export class BaseError extends Error {
+  public readonly statusCode: number;
+  public readonly isOperational: boolean;
+  public readonly details: unknown;
+
+  constructor(
+    message: string,
+    statusCode: number = HttpStatus.INTERNAL_SERVER_ERROR,
+    isOperational = true,
+    details: unknown = undefined,
+  ) {
+    super(message);
+    this.statusCode = statusCode;
+    this.isOperational = isOperational;
+    this.details = details;
+    Object.setPrototypeOf(this, new.target.prototype);
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
