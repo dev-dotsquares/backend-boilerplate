@@ -1,9 +1,15 @@
 import type { IUserRepository } from '@/domain/repositories/user.repository.interface';
+import type { IRevokedTokenRepository } from '@/domain/repositories/revoked-token.repository.interface';
 import type { SafeUserEntity } from '@/domain/entities/user';
 import { toSafeUser } from '@/domain/entities/user';
 import { ConflictError, AuthError, NotFoundError } from '@/exceptions';
 import { hashPassword, comparePassword } from '@/utils/password';
-import { signAccessToken, signRefreshToken, verifyRefreshToken } from '@/utils/jwt';
+import {
+  signAccessToken,
+  signRefreshToken,
+  verifyRefreshToken,
+  type RefreshTokenPayload,
+} from '@/utils/jwt';
 
 interface AuthTokens {
   accessToken: string;
@@ -16,7 +22,10 @@ interface AuthResponse {
 }
 
 export class AuthService {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly revokedTokenRepository: IRevokedTokenRepository,
+  ) {}
 
   async register(email: string, name: string, password: string): Promise<AuthResponse> {
     const existing = await this.userRepository.findByEmail(email);
@@ -66,6 +75,11 @@ export class AuthService {
     try {
       const decoded = verifyRefreshToken(refreshToken);
 
+      const revoked = await this.revokedTokenRepository.isRevoked(decoded.jti);
+      if (revoked) {
+        throw new AuthError('Refresh token has been revoked');
+      }
+
       const user = await this.userRepository.findById(decoded.id);
       if (!user) {
         throw new AuthError('User no longer exists');
@@ -79,6 +93,16 @@ export class AuthService {
     } catch (error) {
       if (error instanceof AuthError) throw error;
       throw new AuthError('Invalid or expired refresh token');
+    }
+  }
+
+  async logout(refreshToken: string): Promise<void> {
+    try {
+      const decoded = verifyRefreshToken(refreshToken) as RefreshTokenPayload & { exp: number };
+      const expiresAt = new Date(decoded.exp * 1000);
+      await this.revokedTokenRepository.add(decoded.jti, expiresAt);
+    } catch {
+      // Invalid/expired token: treat as no-op (idempotent logout)
     }
   }
 

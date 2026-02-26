@@ -24,6 +24,12 @@ export class AuthController {
     sendSuccess(res, tokens, 'Token refreshed successfully');
   }
 
+  static async logout(req: Request, res: Response): Promise<void> {
+    const { refreshToken } = req.body;
+    await authService.logout(refreshToken);
+    sendSuccess(res, null, 'Logged out successfully');
+  }
+
   static async me(req: Request, res: Response): Promise<void> {
     const user = await authService.me(req.user!.id);
     sendSuccess(res, user, 'User profile retrieved');

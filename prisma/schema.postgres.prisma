@@ -19,3 +19,9 @@ model User {
   @@index([createdAt])
   @@map("users")
 }
+
+model RevokedToken {
+  jti       String   @id
+  expiresAt DateTime @map("expires_at")
+  @@map("revoked_tokens")
+}

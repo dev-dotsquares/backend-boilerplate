@@ -17,3 +17,7 @@ export const loginBody = z.object({
 export const refreshBody = z.object({
   refreshToken: z.string().min(1, 'Refresh token is required'),
 });
+
+export const logoutBody = z.object({
+  refreshToken: z.string().min(1, 'Refresh token is required'),
+});

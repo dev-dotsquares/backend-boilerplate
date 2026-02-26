@@ -29,6 +29,16 @@ describe('Health Check', () => {
 
     expect(res.headers['x-request-id']).toBe(customId);
   });
+
+  it('GET /health/ready should return 200 when DB is ready or 503 when not', async () => {
+    const res = await request.get('/health/ready');
+
+    expect([200, 503]).toContain(res.status);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body).toHaveProperty('message');
+    expect(res.body.data).toHaveProperty('status');
+    expect(res.body.data).toHaveProperty('database');
+  });
 });
 
 describe('404 Handler', () => {
@@ -90,5 +100,22 @@ describe('Auth API - Validation', () => {
 
     expect(res.status).toBe(401);
     expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/v1/auth/logout should reject missing refreshToken', async () => {
+    const res = await request.post('/api/v1/auth/logout').send({});
+
+    expect(res.status).toBe(422);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/v1/auth/logout should accept valid body and return 200', async () => {
+    const res = await request
+      .post('/api/v1/auth/logout')
+      .send({ refreshToken: 'invalid-or-expired-token' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.message).toBe('Logged out successfully');
   });
 });

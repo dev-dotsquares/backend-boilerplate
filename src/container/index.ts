@@ -1,7 +1,10 @@
 import { config } from '@/config';
 import type { IUserRepository } from '@/domain/repositories/user.repository.interface';
+import type { IRevokedTokenRepository } from '@/domain/repositories/revoked-token.repository.interface';
 import { PrismaUserRepository } from '@/infrastructure/persistence/prisma/user.prisma.repository';
 import { MongooseUserRepository } from '@/infrastructure/persistence/mongoose/user.mongoose.repository';
+import { PrismaRevokedTokenRepository } from '@/infrastructure/persistence/prisma/revoked-token.prisma.repository';
+import { MongooseRevokedTokenRepository } from '@/infrastructure/persistence/mongoose/revoked-token.mongoose.repository';
 import { UserService } from '@/services/user.service';
 import { AuthService } from '@/services/auth.service';
 
@@ -19,9 +22,20 @@ function createUserRepository(): IUserRepository {
   }
 }
 
+function createRevokedTokenRepository(): IRevokedTokenRepository {
+  switch (config.database.use) {
+    case 'postgres':
+    case 'mysql':
+      return new PrismaRevokedTokenRepository();
+    case 'mongo':
+      return new MongooseRevokedTokenRepository();
+  }
+}
+
 const userRepository = createUserRepository();
+const revokedTokenRepository = createRevokedTokenRepository();
 const userService = new UserService(userRepository);
-const authService = new AuthService(userRepository);
+const authService = new AuthService(userRepository, revokedTokenRepository);
 
 export const container = {
   userRepository,

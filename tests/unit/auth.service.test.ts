@@ -1,5 +1,6 @@
 import { AuthService } from '@/services/auth.service';
 import type { IUserRepository } from '@/domain/repositories/user.repository.interface';
+import type { IRevokedTokenRepository } from '@/domain/repositories/revoked-token.repository.interface';
 import type { UserEntity } from '@/domain/entities/user';
 import { ConflictError, AuthError } from '@/exceptions';
 import * as passwordUtil from '@/utils/password';
@@ -32,12 +33,18 @@ const mockRepo: jest.Mocked<IUserRepository> = {
   delete: jest.fn(),
 };
 
+const mockRevokedTokenRepo: jest.Mocked<IRevokedTokenRepository> = {
+  add: jest.fn().mockResolvedValue(undefined),
+  isRevoked: jest.fn().mockResolvedValue(false),
+};
+
 describe('AuthService', () => {
   let service: AuthService;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new AuthService(mockRepo);
+    mockRevokedTokenRepo.isRevoked.mockResolvedValue(false);
+    service = new AuthService(mockRepo, mockRevokedTokenRepo);
   });
 
   describe('register', () => {
