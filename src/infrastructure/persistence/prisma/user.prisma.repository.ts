@@ -11,21 +11,23 @@ import { getPrismaClient } from './prisma.client';
 import { NotFoundError, ConflictError } from '@/exceptions';
 import { Prisma } from '@prisma/client';
 
-function toEntity(row: {
+type PrismaUserRow = {
   id: string;
   email: string;
   name: string;
-  password: string;
-  role: string;
+  password?: string | null;
+  role?: string | null;
   createdAt: Date;
   updatedAt: Date;
-}): UserEntity {
+};
+
+function toEntity(row: PrismaUserRow): UserEntity {
   return {
     id: row.id,
     email: row.email,
     name: row.name,
-    password: row.password,
-    role: row.role as UserRole,
+    password: row.password as string,
+    role: (row.role ?? 'user') as UserRole,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -44,7 +46,7 @@ export class PrismaUserRepository implements IUserRepository {
           name: data.name,
           password: data.password,
           ...(data.role ? { role: data.role } : {}),
-        },
+        } as Prisma.UserCreateInput,
       });
       return toEntity(row);
     } catch (error) {
