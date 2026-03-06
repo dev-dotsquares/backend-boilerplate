@@ -1,0 +1,21 @@
+---
+description: When the user asks to create a branch, commit changes, merge, or "do proper git" for recent work, delegate to the git-workflow subagent. Do not run git workflow automatically on every change; only when the user explicitly requests it or says to put changes in a branch/commit.
+alwaysApply: false
+---
+
+# When to use the Git workflow subagent
+
+Delegate to the **git-workflow** subagent when:
+
+- The user says they want to **create a branch** (e.g. "put this in a feature branch", "create a branch for this").
+- The user asks to **commit** changes with a good message or "proper git".
+- The user asks to **merge** (e.g. "merge this into main" or "merge back into current branch").
+- The user asks for **senior-level git** or "proper git process" for their changes.
+
+Do **not** delegate to git-workflow for:
+
+- Every small edit (only when the user explicitly wants branch/commit/merge).
+- Pushing to remote unless the user asks to push (the subagent does not push by default).
+- Force-push or history rewrite unless the user explicitly requests it.
+
+Invoke explicitly: `/git-workflow` or ask the user "Should I create a feature branch and commit these changes?" after a feature is done, then delegate if they say yes.

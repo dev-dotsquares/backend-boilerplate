@@ -1,0 +1,22 @@
+{
+  "name": "backend-boilerplate",
+  "description": "Rules and skills for a Node.js Express TypeScript backend with layered architecture, JWT auth, and Prisma/Mongoose persistence.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Backend Boilerplate"
+  },
+  "keywords": [
+    "express",
+    "typescript",
+    "backend",
+    "boilerplate",
+    "node",
+    "rest",
+    "jwt",
+    "prisma",
+    "mongoose"
+  ],
+  "license": "MIT",
+  "rules": ".cursor/rules",
+  "skills": ".cursor/skills"
+}

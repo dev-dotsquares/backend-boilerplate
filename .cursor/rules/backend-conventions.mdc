@@ -1,0 +1,44 @@
+---
+description: Layered Node Express backend; use @/ path alias, config-only env, HttpStatus and sendSuccess; throw custom exceptions; asyncHandler and validate middleware; camelCase/PascalCase/kebab-case naming.
+alwaysApply: false
+globs: ["src/**/*.ts"]
+---
+
+# Backend conventions (src/)
+
+When editing any file under `src/`, follow these conventions.
+
+## Architecture
+
+- **Flow**: Route → Controller → Service → Repository (interface). Controllers are thin; business logic lives in services.
+- **Layers**:
+  - **Domain**: Entities and DTOs in `src/domain/entities/`; repository interfaces in `src/domain/repositories/`. No framework imports.
+  - **Application**: Services in `src/services/`; depend only on repository interfaces.
+  - **Infrastructure**: Prisma and Mongoose implementations under `src/infrastructure/persistence/`.
+- **Container**: `src/container/index.ts` wires implementations by `config.database.use` (mysql | postgres | mongo). Add new repositories and services there.
+
+## Imports and config
+
+- **Path alias**: Use `@/` for `src/` (e.g. `import { config } from '@/config'`). Do not use relative paths like `../../../config` from deep folders.
+- **Environment**: Never read `process.env` outside `src/config/`. All config comes from the validated `config` object. Env validation is in `src/config/env.ts` (Zod).
+
+## HTTP and responses
+
+- **Status codes**: Use constants from `@/constants/http` (e.g. `HttpStatus.CREATED`, `HttpStatus.NOT_FOUND`). Do not hardcode numbers.
+- **Success responses**: Use `sendSuccess(res, data, message?, statusCode?)` from `@/utils/response`. Default status is 200; use 201 for create.
+- **Errors**: Throw custom exceptions from `@/exceptions`: `ValidationError` (422), `AuthError` (401), `NotFoundError` (404), `ConflictError` (409). Do not call `res.status().json()` for errors in controllers; the error middleware in `src/middlewares/error.middleware.ts` handles responses.
+
+## Routes
+
+- Wrap every async route handler with `asyncHandler(Controller.method)` from `@/utils/async-handler` so thrown errors reach the error middleware.
+- Use `validate({ body, params, query })` from `src/middlewares/validate.middleware` with Zod schemas from `src/validators/`.
+
+## Naming
+
+- **Variables and functions**: camelCase.
+- **Classes, types, interfaces**: PascalCase.
+- **Files**: kebab-case for multi-word names (e.g. `user.controller.ts`, `auth.middleware.ts`).
+
+## Reference
+
+For a one-page map of `src/` and container wiring, see the backend-conventions skill or `.cursor/skills/backend-conventions/references/structure.md`.

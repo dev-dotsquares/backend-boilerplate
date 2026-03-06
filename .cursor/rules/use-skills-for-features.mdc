@@ -1,0 +1,16 @@
+---
+description: When adding new entities, routes, validators, auth protection, or repositories, use the project skills (add-entity, add-route, add-validator, auth-and-routes, database-repository). Invoke with /skill-name or let Agent Decides apply them.
+alwaysApply: false
+---
+
+# Use skills for feature work
+
+When extending this backend, use the project skills so changes follow the same patterns.
+
+- **Add a new entity/resource** (e.g. Product, Order): Use the **add-entity** skill. Invoke with `/add-entity` or rely on Agent Decides.
+- **Add a new API endpoint**: Use the **add-route** skill (`/add-route`).
+- **Add or change request validation** (body, params, query): Use the **add-validator** skill (`/add-validator`).
+- **Secure a route** (JWT, roles): Use the **auth-and-routes** skill (`/auth-and-routes`).
+- **Add a new repository** (new persistence or entity): Use the **database-repository** skill (`/database-repository`).
+
+All skills live under `.cursor/skills/`. For project structure and conventions, the **backend-conventions** skill and the rule that applies to `src/**/*.ts` also apply.

@@ -1,0 +1,19 @@
+---
+description: After the user approves new or changed features and asks to update documentation or Cursor (rules, skills, plugin), delegate to the docs-and-cursor-artifacts subagent. Do not run this automatically on every edit; only when the user explicitly requests it.
+alwaysApply: false
+---
+
+# When to use the Docs and Cursor Artifacts subagent
+
+Delegate to the **docs-and-cursor-artifacts** subagent when:
+
+- The user says that a **feature (or change) is approved** and asks to **update documentation** and/or **update rules, skills, or plugin**.
+- The user asks to **refresh docs** after adding or changing features.
+- The user asks to **sync Cursor artifacts** (rules, skills, plugin) with the current codebase.
+
+Do **not** delegate when:
+
+- The user has not approved the feature or has not asked to update docs or Cursor artifacts.
+- The user is only asking for code changes (no mention of docs or Cursor).
+
+Invoke explicitly: **`/docs-and-cursor-artifacts`** after a feature is approved, or when the user says e.g. "update the README and Cursor rules for what we just did."
